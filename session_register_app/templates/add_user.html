@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        input.green:focus {
+            border-color: rgb(35, 194, 35);
+            box-shadow: 0 0 0 0.25rem rgb(77 236 48 / 30%)
+        }
+        input.red:focus {
+            border-color: rgb(246 118 118);
+            box-shadow: 0 0 0 0.25rem rgb(248 40 40 / 20%)
+        }
+        input.green {
+            border-color: rgb(35, 194, 35);
+        }
+        input.red {
+            border-color: rgb(246 118 118);
+        }
+    </style>
+    <title>Agregar usuario</title>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Test app</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Perfil</a>
+                        </li>
+                    </ul>
+                    <form action="/logout/">
+                        {% csrf_token %}
+                        <input type="hidden" name="confirm" value="true">
+                        <input type="submit" class="btn btn-secondary" value="Cerrar sesión">
+                    </form>
+                </div>
+            </div>
+        </nav>
+        <hr>
+
+        {% if messages %}
+        <div class="nav m-4">
+            <div class="col">
+                <ul class="messages list-group d-flex justify-content-center w-50">    
+                    {% for message in messages %}
+                        <li {% if message.tags %} class="list-group-item list-group-item-danger {{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <div id="val" class="mb-4 d-flex justify-content-center">
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 me-5 px-4">
+                
+                <div class="row my-4 d-flex justify-content-between mt-5">
+                    <h2 class="col">Agregar nuevo usuario</h2>
+                    <div class="col-3 d-flex justify-content-end"><a type="button" href="/dashboard/" class="btn btn-primary ">Volver al panel</a></div>
+                </div>
+
+                <div class="col mb-2 d-flex justify-content-center">
+                    <p>*Todos los campos son obligatorios</p>
+                </div>
+                <form id='form1' action="/register/reg" method="POST">
+                    <div class="token">
+                        {% csrf_token %}
+                    </div>
+                    <div class="row mb-3">
+                        <label for="fname" class="col-3 form-label">Nombre:</label>
+                        <div class="col">
+                            <input name="fname" required type="text" value="" class="col form-control" id="fname">
+                            <div id="nombre"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="lname" class="col-3 form-label">Apellido:</label>
+                        <div class="col">
+                            <input name="lname" required type="text" value="" class="col form-control" id="lname">
+                            <div id="apell"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-3 form-label">Email:</label>
+                        <div class="col">
+                            <input name="email" id="email" type="email" placeholder="ejemplo@email.com" class="col form-control">
+                            <div id="em"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="date" class="col-3 form-label">Fecha de nacimiento:</label>
+                        <div class="col">
+                            <input name="date" required type="date" value="1990-01-01" class="col form-control" id="date">
+                            <div id="fecha"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="pw" class="col-3 form-label">Contraseña:</label>
+                        <div class="col">
+                            <input name="password" required type="password" class="col form-control" id="pw">
+                            <div id="contra"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="pw2" class="col-3 form-label">Repita contraseña:</label>
+                        <div class="col mb-3">
+                            <input name="password2" required type="password" class="col form-control" id="pw2">
+                            <div id="contra2" class="row"></div>
+                        </div>
+                    </div>
+                    <div class="col d-flex justify-content-end mb-5">
+                        <button type="submit" class="btn btn-success">Agregar usuario</button>
+                    </div>
+                </form>
+                <form id='form2' action="/register/" method="POST">
+                        {% csrf_token %}
+                        <input id="validate_email" type="hidden" name="email" value="">
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function str(error){
+            a = `<ul class="mt-2 d-flex justify-content-center">
+                    <li class="list-group-item list-group-item-danger p-2 bd-highlight mb-3">
+                        ${error}
+                    </li>
+                </ul>`;
+            return a
+        }
+
+        function old(fecha) {
+            var hoy = new Date();
+            var cumpleanos = new Date(fecha);
+            var edad = hoy.getFullYear() - cumpleanos.getFullYear();
+            var mes = hoy.getMonth() - cumpleanos.getMonth();
+
+            if (mes < 0 || (mes === 0 && hoy.getDate() < cumpleanos.getDate())) {
+                edad--;
+            }
+            return edad;
+        }
+
+        emailRegex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
+        document.getElementById('form1').addEventListener('input', function() {
+            campo = event.target;
+            //Se muestra un texto a modo de ejemplo, luego va a ser un icono
+            if (($('#fname').val()).length < 2){
+                $('#fname').removeClass('green').addClass('red')
+            }else{
+                $('#fname').removeClass('red').addClass('green')
+            }
+            if (($('#lname').val()).length < 2){
+                $('#lname').removeClass('green').addClass('red')
+            }else{
+                $('#lname').removeClass('red').addClass('green')
+            }
+            if (emailRegex.test($('#email').val())) {
+                $('#email').removeClass('red').addClass('green')
+            } else {
+                $('#email').removeClass('green').addClass('red')
+            }
+            if (old($('#date').val()) < 13){
+                $('#date').removeClass('green').addClass('red')
+                $('#fecha').html('')
+                error = 'Para registrarse se debe tener al menos 13 años de edad'
+                a = str(error)
+                $(a).hide().appendTo($('#fecha')).fadeIn(700);
+            }else{
+                $('#date').removeClass('red').addClass('green')
+                $('#fecha').html('')
+                }
+            if (($('#pw').val()).length < 8){
+                $('#pw').removeClass('green').addClass('red')
+            }else{
+                $('#pw').removeClass('red').addClass('green')
+            }
+            if (($('#pw2').val()).length < 8){
+                $('#pw2').removeClass('green').addClass('red')
+            }else{
+                $('#pw2').removeClass('red').addClass('green')
+                }
+            });
+
+        $(document).ready(function(){
+            
+            $('#form1').submit(function(){
+                var count = 0;
+                if (($('#fname').val()).length < 2){
+                    $('#nombre').html('')
+                    error = 'El campo nombre debería tener al menos dos carácteres'
+                    a = str(error)
+                    $(a).hide().appendTo($('#nombre')).fadeIn(600);
+                    count += 1;
+                } ;
+                if (($('#lname').val()).length < 2){
+                    $('#apell').html('')
+                    error = 'El campo apellido debería tener al menos dos carácteres'
+                    a = str(error)
+                    $(a).hide().appendTo($('#apell')).fadeIn(600);
+                    count += 1;
+                }
+                if (emailRegex.test($('#email').val()) == false){
+                    $('#em').html('')
+                    error = 'El campo email debería tener un formato válido'
+                    a = str(error)
+                    $(a).hide().appendTo($('#em')).fadeIn(700);
+                    count += 1;
+                }
+
+                $('#validate_email').val($('#email').val())
+                var valid = $.post('/valid', $('#form2').serialize()).done(function(data){
+                    if (data.length > 1){
+                        $('#em').html('')
+                        error = 'El email ya está registrado'
+                        a = str(error)
+                        $(a).hide().appendTo($('#em')).fadeIn(700);
+                        count += 1;
+                    }
+                })
+                if (old($('#date').val()) < 13){
+                    $('#fecha').html('')
+                    error = 'Para registrarse se debe tener al menos 13 años de edad'
+                    a = str(error)
+                    $(a).hide().appendTo($('#fecha')).fadeIn(700);
+                    count += 1;
+                }
+                if ($('#pw').val() != $('#pw2').val()){
+                    $('#contra2').html('')
+                    error = 'Las contraseñas no coinciden'
+                    a = str(error)
+                    $(a).hide().appendTo($('#contra2')).fadeIn(700);
+                    count += 1;
+                }
+                console.log(count)
+                if (count == 0){
+                    return true;
+                    $.post("/add/", $(this).serialize()).done(function(data){
+                    
+                    });
+                }    
+                return false;
+            });
+
+        });
+    </script>
+</body>
+</html>

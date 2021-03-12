@@ -1,0 +1,96 @@
+
+{% for m in mensajes %}
+    <div class="row mx-auto mb-4 bg-secondary" style="border-radius: 1rem!important;">
+        <div class="row">
+            <div class="col-10 col-md-11 d-flex justify-content-between">
+                <span class="text-light">
+                    <a href="{% url 'show' num=m.who_sent.id %}">{{m.who_sent.fname}} {{m.who_sent.lname}}</a> 
+                    escribió: 
+                </span>
+                <div>
+                    <i class="text-info tex">{%if m.id in since_msg%}Hace {{m.create_at|timesince}} {%else%} {{m.create_at | date:"d/m/Y"}}, {{m.create_at | time:"h:i a"}}{%endif%}</i>
+                </div>
+            </div>
+
+
+            {% if m.who_sent.id == usuario.id %}
+                {% comment %} {% if m.id in delete %}  condición para permitir borrar el mensaje solo dentro de los primeros 30 min que fue creado {% endcomment %}
+                <div class="col-1 btn-group">
+                    <button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        ...
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <form class="form_dinamic" action={% url "deletemsg" %} method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="id_mes" value="{{m.id}}">
+                                <input type="hidden" name="id_user" value="{{m.user_msg.id}}">
+                                <input type="submit" class="dropdown-item" value="eliminar">
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                {% comment %} {% endif %} {% endcomment %}
+            {% endif %}
+        </div>
+        <div class="col p-1">
+            <p class="text-light ms-3 mt-3"><i>{{m.message}}</i></p>
+        
+        {% comment %} Comentarios de mensajes {% endcomment %}
+
+            {% for com in m.comments.all %}
+            <div class="d-flex justify-content-start ms-3">
+                <div class="col-sm-9 mb-2 bg-dark" style="border-radius: 1rem!important;">
+                    
+                    <div class="row">
+                        <div class="col-10 col-md-11 d-flex justify-content-between">
+                            <span class="text-light ms-2"><a href="{% url 'show' num=com.who_comment.id %}">{{com.who_comment.fname}} {{com.who_comment.lname}} </a>respondió: </span>
+                            <div>
+                                <i class="col text-info tex">{%if com.id in since_comm%}Hace {{com.create_at|timesince}} {%else%} {{com.create_at | date:"d/m/Y"}}, {{com.create_at | time:"h:i a"}}{%endif%}</i>
+                            </div>
+                        </div>
+
+                    {% if com.who_comment.id == usuario.id %}
+                        <div class="col-1 btn-group">
+                            <button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                ...
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form class="form_dinamic" action={% url "delete_cmt" %} method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="id_cmt" value="{{com.id}}">
+                                        <input type="hidden" name="id_user" value="{{m.user_msg.id}}">
+                                        <input type="submit" class="dropdown-item" value="eliminar">
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                    </div>
+                    
+                    <div class="col-md-10 mx-auto ms-4">
+                        <p class="text-light"><i>{{com.comment}}</i></p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="d-flex justify-content-end">
+                <a class="text-dark col-sm-2 com" href="">comentar</a>
+            </div>
+            <form class="form_dinamic" style="display: none;" action={% url "post_comment"%} method="post">
+                {% csrf_token %}
+                <div class="row d-flex justify-content-center">
+                    <textarea name="post_comment" style="resize: none;" class="form-control w-75 mess" rows="2"></textarea>
+                </div>
+                <input type="hidden" name="id_msg" value="{{m.id}}">
+                <input type="hidden" name="id_user" value="{{m.user_msg.id}}">
+                <div class="d-flex justify-content-end">
+                    <input type="submit" class="col-sm-2 mt-2 btn btn-success" value="comentar">
+                </div>
+            </form>
+        </div>
+        <hr class="bg-dark">
+    </div>
+{% endfor %}

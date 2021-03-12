@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Perfil de usuario</title>
+    <style>
+        textarea.form-control {
+            background-color: #7e9eae
+        }
+        textarea.form-control:hover:focus {
+            background-color: #707070;
+        }
+        textarea.form-control:focus {
+            background-color: #707070;
+        }
+        .dropdown-toggle {
+            white-space: normal;
+            transform: rotate(90deg);
+        }
+        .dropdown-toggle::after{
+            display: none;
+        }
+        .btn-group-vertical>.btn, .btn-group>.btn {
+            position: relative;
+            flex: 0 1;
+        }
+        .tex{ 
+            font-size: 12px;
+        }
+        .btn-outline-light {
+        color: #f8f9fa;
+        border-color: transparent;
+}
+    </style>
+</head>
+<body class="bg-dark">
+    <div class="container">
+    
+        <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #293136;">
+            <div class="container-fluid">
+                <a class="navbar-brand text-light" href="#">Test app</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" aria-current="page" href="/dashboard">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="#">Perfil</a>
+                        </li>
+                    </ul>
+                    <form action="/logout/">
+                        {% csrf_token %}
+                        <input type="hidden" name="confirm" value="true">
+                        <input type="submit" class="btn btn-secondary" value="Cerrar sesión">
+                    </form>
+                </div>
+            </div>
+        </nav>
+        <hr>
+
+        <div class="col-xxl-8 col-lg-10 mx-auto">
+            <h2 class="text-light mb-3">{{user.fname}} {{user.lname}}</h2>
+            <p class="row text-light"><span class="col-sm-3">Registrado en: </span><span class="col">{{user.create_at|date:"l d" }} de {{user.create_at|date:"F Y" }} {{ user.create_at|time:"H:i" }}</span></p>
+            <p class="row text-light"><span class="col-3">ID usuario: </span><span class="col">{{user.id}}</span></p>
+            <p class="row text-light"><span class="col-sm-3">Correo electrónico: </span><span class="col">{{user.email}}</span></p>
+            <p class="row text-light"><span class="col-sm-3 mb-4">Descripción: </span><span class="col">{{user.desc|default_if_none:"-"}}</span></p>
+            
+            <h4 class="text-light mt-5">Deja un mensaje para {{user.fname}}</h4>
+            <form class="form_nodinamic" action="{% url 'post_message' %}" id="for1" method="POST">
+                {% csrf_token %}
+                <div class="form-floating mb-4">
+                    <textarea name="post_message" style="border-radius: 20px; height:100px; resize: none;" class="form-control" id="floatingTextarea"></textarea>
+                    <label for="floatingTextarea">Comentar algo</label>
+                </div>
+                <div class="col d-flex justify-content-end mb-5">
+                    <input type="hidden" name="id_user" value="{{user.id}}">
+                    <button type="submit"class="btn btn-primary">Comentar</button>
+                </div>
+            </form>
+
+        </div>
+        <div class="col-md-10 mx-auto" id="datos">
+        </div>
+    </div>
+    <script>
+
+        //
+        function atach(){
+            $('.com').click(function(a){
+                a.preventDefault()
+                $(this).parent().siblings('form').toggle()
+            });
+            $('.form_dinamic').submit(function(e){
+                e.preventDefault()
+                $.post($(this).attr('action'), $(this).serialize()).done(function(data){
+                    $('#datos').html(data)
+                    atach();
+                })
+                return false;
+            })
+        }
+
+
+        $(document).ready(function(){
+
+            $.get('/user/content/{{user.id}}').done(function(data){
+                $('#datos').html(data)
+                atach();
+            });
+            
+            $('.form_nodinamic').submit(function(e){
+                e.preventDefault()
+                $.post($(this).attr('action'), $(this).serialize()).done(function(data){
+                    $('#datos').html(data)
+                    $('textarea').val('')
+                    atach();
+                })
+                return false;
+            })
+
+        });
+
+    </script>
+</body>
+</html>
